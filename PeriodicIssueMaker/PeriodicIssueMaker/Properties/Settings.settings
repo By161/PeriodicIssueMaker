@@ -1,0 +1,114 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="PeriodicIssueMaker.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="CommentString" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">--</Value>
+    </Setting>
+    <Setting Name="FilePath" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">C:\temp\IssueMakerBotJobFile.txt</Value>
+    </Setting>
+    <Setting Name="TempPath" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">C:\temp</Value>
+    </Setting>
+    <Setting Name="IssueIDColumn" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">BugId</Value>
+    </Setting>
+    <Setting Name="FileType" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">.txt</Value>
+    </Setting>
+    <Setting Name="OverwriteEvenIfFileExists" Type="System.Boolean" Scope="Application">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="FileOutPath" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">C:\tempout\Args.txt</Value>
+    </Setting>
+    <Setting Name="LogPath" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">C:\temp\ConsoleApp1.log</Value>
+    </Setting>
+    <Setting Name="ProgramStart" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Program is starting</Value>
+    </Setting>
+    <Setting Name="DateTimeFormat" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">dddd, dd MMMM yyyy HH:mm:ss</Value>
+    </Setting>
+    <Setting Name="Colon" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">: </Value>
+    </Setting>
+    <Setting Name="Error" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Error! File already exists and cannot overwrite</Value>
+    </Setting>
+    <Setting Name="End" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Program finished</Value>
+    </Setting>
+    <Setting Name="Email" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">byuen@winstonbenefits.com</Value>
+    </Setting>
+    <Setting Name="Subject" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">The Issue Tracker Periodic Insert Bot Created Issue: </Value>
+    </Setting>
+    <Setting Name="NewAuthClientId" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">29a058ae-4c3c-4b41-9b27-2e53e8398f8b</Value>
+    </Setting>
+    <Setting Name="NewAuthTenantId" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">f1289cc5-8456-4f28-8eab-700d1300fc5d</Value>
+    </Setting>
+    <Setting Name="NewAuthClientSecret" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">cuk8Q~z76bIlzBJzw2SKh5MEfcX59JY06el3kcvQ</Value>
+    </Setting>
+    <Setting Name="NewAuthImpersonatedUserId" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">ibsemail@winstonbenefits.com</Value>
+    </Setting>
+    <Setting Name="NewAuthAnchorMailbox" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">ibsemail@winstonbenefits.com</Value>
+    </Setting>
+    <Setting Name="LogLevel" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">100</Value>
+    </Setting>
+    <Setting Name="ProgramStartAndEnd" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">1</Value>
+    </Setting>
+    <Setting Name="ExceptionLevel" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
+    <Setting Name="Level" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">50</Value>
+    </Setting>
+    <Setting Name="IssueTrackerConnectionString" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">server=rsuatdb\SQL2016; Initial Catalog=IssueTracker; user id= IssueTrackerUser; password=W1nst0n#20$18#; Trusted_Connection=no</Value>
+    </Setting>
+    <Setting Name="RunMessage" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">The Issue Tracker Periodic Insert Bot Ran</Value>
+    </Setting>
+    <Setting Name="ErrorSubject" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">The Issue Tracker Periodic Insert Bot failed to load its config file</Value>
+    </Setting>
+    <Setting Name="ProductionConnection" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">http://issuetracker/edit_bug.aspx?id=</Value>
+    </Setting>
+    <Setting Name="TestingConnection" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">http://stage9.winstonfinancial.com:1234/edit_bug.aspx?id=</Value>
+    </Setting>
+    <Setting Name="StringSplitArg" Type="System.Char" Scope="Application">
+      <Value Profile="(Default)">|</Value>
+    </Setting>
+    <Setting Name="TempOutPath" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">C:\tempout</Value>
+    </Setting>
+    <Setting Name="NewLine" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">&lt;br /&gt;</Value>
+    </Setting>
+    <Setting Name="FirstPrefix" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">first</Value>
+    </Setting>
+    <Setting Name="CreatorEmail" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">byuen@winstonbenefits.com</Value>
+    </Setting>
+    <Setting Name="Semicolon" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">;</Value>
+    </Setting>
+    <Setting Name="InvalidFileMessage" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Error! Invalid job file</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
