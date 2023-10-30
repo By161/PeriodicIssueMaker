@@ -15,7 +15,6 @@ namespace PeriodicIssueMaker
     {
         static int issueNumber = 0;
         static string emailBody = "";
-        static string emailRecipients = Settings.Default.CreatorEmail;
         private static async Task Main(string[] args)
         {
             //program starts
@@ -41,7 +40,7 @@ namespace PeriodicIssueMaker
                 //file is invalid
                 else
                 {
-                    await SendEmail(emailRecipients, Settings.Default.ErrorSubject, LogMessage(formattedDateTime, Settings.Default.InvalidFileMessage, Settings.Default.ProgramStartAndEnd));
+                    await SendEmail(Settings.Default.CreatorEmail, Settings.Default.ErrorSubject, LogMessage(formattedDateTime, Settings.Default.InvalidFileMessage, Settings.Default.ProgramStartAndEnd));
                 }
             }
         }
@@ -71,7 +70,7 @@ namespace PeriodicIssueMaker
             EmailHelper emailHelper = new EmailHelper();
             await emailHelper.SendEmail(sendEmailArgs);
         }
-        //helper method to compare the input date to current date and return a DateTime based off input string
+        //helper methods to compare the input date to current date and return a DateTime based off input string
         public static DateTime LastDay(int year, int month, string day)
         {
             DateTime dt;
@@ -155,6 +154,7 @@ namespace PeriodicIssueMaker
             Console.WriteLine(dateTime + Settings.Default.Colon + message);
             return (dateTime + Settings.Default.Colon + message);
         }
+        //helper method to check if the job file is valid
         private static bool FileValid(string file)
         {
             var linesRead = File.ReadLines(Settings.Default.FilePath);
@@ -202,10 +202,12 @@ namespace PeriodicIssueMaker
             }
             return true;
         }
+        //helper method to check if input is a number
         private static bool IsNumeric(string input)
         {
             return int.TryParse(input, out int result);
         }
+        //helper method to check if an inputted string is a valid email address
         private static bool IsValidEmail(string email)
         {
             if (email.Contains(Settings.Default.StringSplitArg))
@@ -221,11 +223,7 @@ namespace PeriodicIssueMaker
             }
             return true;
         }
-        private static int GetEmailNumbers(string input)
-        {
-            string[] emails = input.Split(Settings.Default.StringSplitArg);
-            return emails.Length;
-        }
+        //create and insert issue
         private static async void ProcessIssue()
         {
             //iterates through each line 
@@ -239,7 +237,7 @@ namespace PeriodicIssueMaker
                     string dueDayInput = inputArr[12];
                     string dueDay = dueDayInput.Substring(inputArr[12].IndexOf(" ") + 1).ToLower();
                     string prefix = dueDayInput.Substring(0, dueDayInput.IndexOf(" "));
-                    int emailRecipientsNumber = GetEmailNumbers(inputArr[15]);
+                    string emailRecipients = Settings.Default.CreatorEmail;
                     DateTime dueDate;
                     if (prefix == Settings.Default.FirstPrefix)
                     {
@@ -275,6 +273,7 @@ namespace PeriodicIssueMaker
             }
             await SendIndividualEmails(emailList);
         }
+        //loop to asynchronously send all email notices individually
         private static async Task SendIndividualEmails(List<Email> emailList)
         {
             List<Task> listOfTasks = new List<Task>();
