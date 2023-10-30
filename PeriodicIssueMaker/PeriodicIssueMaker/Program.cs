@@ -228,7 +228,7 @@ namespace PeriodicIssueMaker
         {
             //iterates through each line 
             var linesRead = File.ReadLines(Settings.Default.FilePath);
-            List<Email> emailList = new List<Email>();
+            List<SendEmailArgs> emailList = new List<SendEmailArgs>();
             foreach (var lineRead in linesRead)
             {
                 if (!(lineRead.Substring(0, 2) == Settings.Default.CommentString) && !string.IsNullOrWhiteSpace(lineRead))
@@ -257,7 +257,7 @@ namespace PeriodicIssueMaker
                             emailRecipients += Settings.Default.Semicolon + inputArr[15];
                         }
                         emailBody += Settings.Default.TestingConnection + issueNumber + Settings.Default.NewLine;
-                        Email email = new Email(emailRecipients, Settings.Default.Subject + issueNumber, Settings.Default.TestingConnection + issueNumber);
+                        SendEmailArgs email = new SendEmailArgs(emailRecipients, Settings.Default.Subject + issueNumber, Settings.Default.TestingConnection + issueNumber);
                         emailList.Add(email);
                     }
                     //bot failed to insert issue
@@ -274,12 +274,12 @@ namespace PeriodicIssueMaker
             await SendIndividualEmails(emailList);
         }
         //loop to asynchronously send all email notices individually
-        private static async Task SendIndividualEmails(List<Email> emailList)
+        private static async Task SendIndividualEmails(List<SendEmailArgs> emailList)
         {
             List<Task> listOfTasks = new List<Task>();
-            foreach(Email email in emailList)
+            foreach(SendEmailArgs email in emailList)
             {
-                listOfTasks.Add(SendEmail(email.GetRecipient(), email.GetSubject(), email.GetBody()));
+                listOfTasks.Add(SendEmail(string.Join(";", email.ToAddresses), email.Subject, email.Body));
             }
             await Task.WhenAll(listOfTasks);
         }
