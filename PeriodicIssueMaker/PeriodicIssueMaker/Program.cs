@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -170,33 +169,26 @@ namespace PeriodicIssueMaker
                     continue;
                 }
                 //line is proper command
-                else if (lineRead.Contains(Settings.Default.StringSplitArg))
+                string[] inputArr = lineRead.Split(Settings.Default.StringSplitArg);
+                if (inputArr.Length != 16)
                 {
-                    string[] inputArr = lineRead.Split(Settings.Default.StringSplitArg);
-                    if (inputArr.Length != 16)
-                    {
-                        return false;
-                    }
-                    else
-                    {
-                        if (IsNumeric(inputArr[0]) && IsNumeric(inputArr[3]) && IsNumeric(inputArr[5]) && IsNumeric(inputArr[6]) && IsNumeric(inputArr[7]) && IsNumeric(inputArr[8])
-                                && IsNumeric(inputArr[9]) && IsNumeric(inputArr[10]) && IsNumeric(inputArr[11]))
-                        {
-                            continue;
-                        }
-                        if (IsValidEmail(inputArr[15]))
-                        {
-                            continue;
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    }
+                    return false;
                 }
                 else
                 {
-                    return false;
+                    if (IsNumeric(inputArr[0]) && IsNumeric(inputArr[3]) && IsNumeric(inputArr[5]) && IsNumeric(inputArr[6]) && IsNumeric(inputArr[7]) && IsNumeric(inputArr[8])
+                            && IsNumeric(inputArr[9]) && IsNumeric(inputArr[10]) && IsNumeric(inputArr[11]))
+                    {
+                        continue;
+                    }
+                    if (IsValidEmail(inputArr[15]))
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        return false;
+                    }
                 }
             }
             return true;
