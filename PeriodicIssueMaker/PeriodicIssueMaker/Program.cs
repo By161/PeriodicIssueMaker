@@ -18,10 +18,8 @@ namespace PeriodicIssueMaker
         private static async Task Main(string[] args)
         {
             //program starts
-            DateTime now = DateTime.Now;
-            string formattedDateTime = now.ToString(Settings.Default.DateTimeFormat);
             await SendEmail(Settings.Default.CreatorEmail, Settings.Default.RunMessage, Settings.Default.RunMessage);
-            LogMessage(formattedDateTime, Settings.Default.ProgramStart, Settings.Default.ProgramStartAndEnd);
+            LogMessage(Settings.Default.ProgramStart, Settings.Default.ProgramStartAndEnd);
             using (StreamReader read = new StreamReader(Settings.Default.FilePath))
             {
                 //checks if file is valid
@@ -32,7 +30,7 @@ namespace PeriodicIssueMaker
                         ProcessIssue();
                         await SendEmail(Settings.Default.CreatorEmail, Settings.Default.Subject, emailBody);
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         await SendEmail(Settings.Default.CreatorEmail, Settings.Default.ErrorSubject, ex.Message);
                     }
@@ -40,7 +38,7 @@ namespace PeriodicIssueMaker
                 //file is invalid
                 else
                 {
-                    await SendEmail(Settings.Default.CreatorEmail, Settings.Default.ErrorSubject, LogMessage(formattedDateTime, Settings.Default.InvalidFileMessage, Settings.Default.ProgramStartAndEnd));
+                    await SendEmail(Settings.Default.CreatorEmail, Settings.Default.ErrorSubject, LogMessage(Settings.Default.InvalidFileMessage, Settings.Default.ProgramStartAndEnd));
                 }
             }
         }
@@ -140,19 +138,19 @@ namespace PeriodicIssueMaker
             return dt;
         }
         //helper method to make log messages
-        private static string LogMessage(string dateTime, string message, int logLevel)
+        private static string LogMessage(string message, int logLevel)
         {
             if (logLevel >= Settings.Default.LogLevel)
             {
                 using (StreamWriter streamWriter = new StreamWriter(Settings.Default.LogPath, true))
                 {
                     {
-                        streamWriter.WriteLine(dateTime + Settings.Default.Colon + message);
+                        streamWriter.WriteLine(DateTime.Now + Settings.Default.Colon + message);
                     }
                 }
             }
-            Console.WriteLine(dateTime + Settings.Default.Colon + message);
-            return (dateTime + Settings.Default.Colon + message);
+            Console.WriteLine(DateTime.Now + Settings.Default.Colon + message);
+            return (DateTime.Now + Settings.Default.Colon + message);
         }
         //helper method to check if the job file is valid
         private static bool FileValid(string file)
@@ -277,7 +275,7 @@ namespace PeriodicIssueMaker
         private static async Task SendIndividualEmails(List<SendEmailArgs> emailList)
         {
             List<Task> listOfTasks = new List<Task>();
-            foreach(SendEmailArgs email in emailList)
+            foreach (SendEmailArgs email in emailList)
             {
                 listOfTasks.Add(SendEmail(string.Join(";", email.ToAddresses), email.Subject, email.Body));
             }
