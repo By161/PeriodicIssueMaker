@@ -170,21 +170,12 @@ namespace PeriodicIssueMaker
                 }
                 //line is proper command
                 string[] inputArr = lineRead.Split(Settings.Default.StringSplitArg);
-                if (inputArr.Length != 16)
+                if ((inputArr.Length != 16) || (!(IsNumeric(inputArr[0]) && IsNumeric(inputArr[3]) && IsNumeric(inputArr[5]) &&
+                    IsNumeric(inputArr[6]) && IsNumeric(inputArr[7]) && IsNumeric(inputArr[8])
+                    && IsNumeric(inputArr[9]) && IsNumeric(inputArr[10]) && IsNumeric(inputArr[11])
+                    && IsValidEmail(inputArr[15]))))
                 {
                     return false;
-                }
-                else
-                {
-                    if (IsNumeric(inputArr[0]) && IsNumeric(inputArr[3]) && IsNumeric(inputArr[5]) && IsNumeric(inputArr[6]) && IsNumeric(inputArr[7]) && IsNumeric(inputArr[8])
-                            && IsNumeric(inputArr[9]) && IsNumeric(inputArr[10]) && IsNumeric(inputArr[11]) && IsValidEmail(inputArr[15]))
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        return false;
-                    }
                 }
             }
             return true;
