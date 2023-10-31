@@ -27,7 +27,7 @@ namespace PeriodicIssueMaker
                 {
                     try
                     {
-                        ProcessIssue();
+                        ProcessIssueJobFile();
                         await SendEmail(Settings.Default.CreatorEmail, Settings.Default.Subject, emailBody);
                     }
                     catch (Exception ex)
@@ -158,8 +158,9 @@ namespace PeriodicIssueMaker
             var linesRead = File.ReadLines(Settings.Default.FilePath);
             foreach (var lineRead in linesRead)
             {
+                lineRead.Trim();
                 //line is a comment
-                if (lineRead.Substring(0, 2) == Settings.Default.CommentString)
+                if (lineRead.StartsWith(Settings.Default.CommentString))
                 {
                     continue;
                 }
@@ -222,14 +223,16 @@ namespace PeriodicIssueMaker
             return true;
         }
         //create and insert issue
-        private static async void ProcessIssue()
+        private static async void ProcessIssueJobFile()
         {
             //iterates through each line 
+            //program already ensured the file has correct amount of elements by calling FileValid in the main method
+            //so when the input is split into an array, there will be no out of bounds error.
             var linesRead = File.ReadLines(Settings.Default.FilePath);
             List<SendEmailArgs> emailList = new List<SendEmailArgs>();
             foreach (var lineRead in linesRead)
             {
-                if (!(lineRead.Substring(0, 2) == Settings.Default.CommentString) && !string.IsNullOrWhiteSpace(lineRead))
+                if (!(lineRead.StartsWith(Settings.Default.CommentString) && !string.IsNullOrWhiteSpace(lineRead)))
                 {
                     string[] inputArr = lineRead.Split(Settings.Default.StringSplitArg);
                     string dueDayInput = inputArr[12];
