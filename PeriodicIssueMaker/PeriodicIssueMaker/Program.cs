@@ -159,12 +159,12 @@ namespace PeriodicIssueMaker
             {
                 lineRead.Trim();
                 //line is a comment
-                if (lineRead.StartsWith(Settings.Default.CommentString))
+                if (string.IsNullOrWhiteSpace(lineRead))
                 {
                     continue;
                 }
                 //line is whitespace
-                else if (string.IsNullOrWhiteSpace(lineRead))
+                else if (lineRead.StartsWith(Settings.Default.CommentString)) 
                 {
                     continue;
                 }
