@@ -158,12 +158,12 @@ namespace PeriodicIssueMaker
             foreach (var lineRead in linesRead)
             {
                 lineRead.Trim();
-                //line is a comment
+                //line is whitespace
                 if (string.IsNullOrWhiteSpace(lineRead))
                 {
                     continue;
                 }
-                //line is whitespace
+                //line is a comment
                 else if (lineRead.StartsWith(Settings.Default.CommentString)) 
                 {
                     continue;
