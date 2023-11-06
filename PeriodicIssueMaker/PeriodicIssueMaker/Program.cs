@@ -1,4 +1,9 @@
-﻿using System;
+﻿/* Periodic Issue Maker
+ * Reads in a job file that lists issues to be created and calls the stored procedure to insert issues according to the job configuration file.
+ * Author: Brandon Yuen
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -170,9 +175,9 @@ namespace PeriodicIssueMaker
                 }
                 //line is proper command
                 string[] inputArr = lineRead.Split(Settings.Default.StringSplitArg);
-                if ((inputArr.Length != 16) || (!(IsNumeric(inputArr[0]) && IsNumeric(inputArr[3]) && IsNumeric(inputArr[5]) &&
-                    IsNumeric(inputArr[6]) && IsNumeric(inputArr[7]) && IsNumeric(inputArr[8])
-                    && IsNumeric(inputArr[9]) && IsNumeric(inputArr[10]) && IsNumeric(inputArr[11])
+                if ((inputArr.Length != 16) || (!(IsInt(inputArr[0]) && IsInt(inputArr[3]) && IsInt(inputArr[5]) &&
+                    IsInt(inputArr[6]) && IsInt(inputArr[7]) && IsInt(inputArr[8])
+                    && IsInt(inputArr[9]) && IsInt(inputArr[10]) && IsInt(inputArr[11])
                     && IsValidEmail(inputArr[15]))))
                 {
                     return false;
@@ -181,7 +186,7 @@ namespace PeriodicIssueMaker
             return true;
         }
         //helper method to check if input is a number
-        private static bool IsNumeric(string input)
+        private static bool IsInt(string input)
         {
             return int.TryParse(input, out int result);
         }
@@ -211,7 +216,7 @@ namespace PeriodicIssueMaker
             List<SendEmailArgs> emailList = new List<SendEmailArgs>();
             foreach (var lineRead in linesRead)
             {
-                if (!(lineRead.StartsWith(Settings.Default.CommentString) && !string.IsNullOrWhiteSpace(lineRead)))
+                if (!string.IsNullOrWhiteSpace(lineRead) && !(lineRead.StartsWith(Settings.Default.CommentString)))
                 {
                     string[] inputArr = lineRead.Split(Settings.Default.StringSplitArg);
                     string dueDayInput = inputArr[12];
