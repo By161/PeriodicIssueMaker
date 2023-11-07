@@ -19,6 +19,8 @@ namespace PeriodicIssueMaker
     {
         static int issueNumber = 0;
         static string emailBody = "";
+        static Dictionary<string, int> DaysOfWeek = new Dictionary<string, int>() 
+        { { "monday", 1 }, { "tuesday", 2 }, { "wednesday", 3 }, { "thursday", 4 }, { "friday", 5 }, { "saturday", 6 }, { "sunday", 0 }, };
         private static async Task Main(string[] args)
         {
             //program starts
@@ -73,72 +75,24 @@ namespace PeriodicIssueMaker
             await emailHelper.SendEmail(sendEmailArgs);
         }
         //helper methods to compare the input date to current date and return a DateTime based off input string
+        //gets the date of the last specified day in the month
         public static DateTime LastDay(int year, int month, string day)
         {
             DateTime dt;
-            if (month < 12)
-                dt = new DateTime(year, month + 1, 1);
-            else
-                dt = new DateTime(year + 1, 1, 1);
-            dt = dt.AddDays(-1);
-            switch (day)
-            {
-                case "monday":
-                    while (dt.DayOfWeek != DayOfWeek.Monday) dt = dt.AddDays(-1);
-                    return dt;
-                case "tuesday":
-                    while (dt.DayOfWeek != DayOfWeek.Tuesday) dt = dt.AddDays(-1);
-                    return dt;
-                case "wednesday":
-                    while (dt.DayOfWeek != DayOfWeek.Wednesday) dt = dt.AddDays(-1);
-                    return dt;
-                case "thursday":
-                    while (dt.DayOfWeek != DayOfWeek.Thursday) dt = dt.AddDays(-1);
-                    return dt;
-                case "friday":
-                    while (dt.DayOfWeek != DayOfWeek.Friday) dt = dt.AddDays(-1);
-                    return dt;
-                case "saturday":
-                    while (dt.DayOfWeek != DayOfWeek.Saturday) dt = dt.AddDays(-1);
-                    return dt;
-                case "sunday":
-                    while (dt.DayOfWeek != DayOfWeek.Sunday) dt = dt.AddDays(-1);
-                    return dt;
-            }
+            dt = new DateTime(year, month, DateTime.DaysInMonth(year, month), System.Globalization.CultureInfo.CurrentCulture.Calendar);
+            int daysOffset = Convert.ToInt32(dt.DayOfWeek) - DaysOfWeek[day];
+            if (daysOffset < 0) daysOffset += 7;
+            dt = dt.AddDays(-daysOffset);
             return dt;
         }
+        //gets the date of the first specified day in the month
         public static DateTime FirstDay(int year, int month, string day)
         {
             DateTime dt;
-            if (month < 12)
-                dt = new DateTime(year, month + 1, 1);
-            else
-                dt = new DateTime(year + 1, 1, 1);
-            dt = dt.AddDays(-1);
-            switch (day)
-            {
-                case "monday":
-                    while (dt.DayOfWeek != DayOfWeek.Monday) dt = dt.AddDays(1);
-                    return dt;
-                case "tuesday":
-                    while (dt.DayOfWeek != DayOfWeek.Tuesday) dt = dt.AddDays(1);
-                    return dt;
-                case "wednesday":
-                    while (dt.DayOfWeek != DayOfWeek.Wednesday) dt = dt.AddDays(1);
-                    return dt;
-                case "thursday":
-                    while (dt.DayOfWeek != DayOfWeek.Thursday) dt = dt.AddDays(1);
-                    return dt;
-                case "friday":
-                    while (dt.DayOfWeek != DayOfWeek.Friday) dt = dt.AddDays(1);
-                    return dt;
-                case "saturday":
-                    while (dt.DayOfWeek != DayOfWeek.Saturday) dt = dt.AddDays(1);
-                    return dt;
-                case "sunday":
-                    while (dt.DayOfWeek != DayOfWeek.Sunday) dt = dt.AddDays(1);
-                    return dt;
-            }
+            dt = new DateTime(year, month, 1, System.Globalization.CultureInfo.CurrentCulture.Calendar);
+            int daysOffset = DaysOfWeek[day] - Convert.ToInt32(dt.DayOfWeek);
+            if (daysOffset < 0) daysOffset += 7;
+            dt = dt.AddDays(daysOffset);
             return dt;
         }
         //helper method to make log messages
