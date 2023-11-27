@@ -54,7 +54,7 @@ namespace PeriodicIssueMaker
         {
             DataSet ds = SqlHelper.ExecuteDataset(Settings.Default.IssueTrackerConnectionString, CommandType.StoredProcedure, "InsertBugAndComment",
                                 new SqlParameter("@bg_short_desc", input[4]),
-                                new SqlParameter("@bg_reported_user", input[5]),
+                                new SqlParameter("@bg_reported_user", Settings.Default.BotUserId),
                                 new SqlParameter("@bg_priority", input[6]),
                                 new SqlParameter("bg_category", input[7]),
                                 new SqlParameter("@bg_project", input[8]),
@@ -144,23 +144,6 @@ namespace PeriodicIssueMaker
             return int.TryParse(input, out int result);
         }
 
-        //helper method to check if an inputted string is a valid email address
-        private static bool IsValidEmail(string email)
-        {
-            if (email.Contains(Settings.Default.StringSplitArg))
-            {
-                string[] emails = email.Split(Settings.Default.StringSplitArg);
-                for (int i = 0; i < emails.Length; i++)
-                {
-                    if (!emails[i].Contains("@") || emails[i].IndexOf("@") < 0 || emails[i].IndexOf("@") >= emails[i].Length)
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
-
         //create and insert issue
         private static async void ProcessIssueJobFile()
         {
@@ -176,7 +159,7 @@ namespace PeriodicIssueMaker
                     string[] inputArr = lineRead.Split(Settings.Default.StringSplitArg);
                     string dueDay = inputArr[12].Substring(inputArr[12].IndexOf(" ") + 1).ToLower();
                     string prefix = inputArr[12].Substring(0, inputArr[12].IndexOf(" "));
-                    string emailRecipients = Settings.Default.CreatorEmail;
+                    
                     DateTime dueDate;
                     if (prefix == Settings.Default.FirstPrefix)
                     {
@@ -189,14 +172,10 @@ namespace PeriodicIssueMaker
                     //bot starts to run
                     try
                     {
-                        //if (CheckMostRecentJobDate(inputArr[0], inputArr[2]))
+                        if (CheckMostRecentJobDate(inputArr[4], inputArr[2]))
                         {
                             DataSet ds = CallSproc(inputArr, dueDate);
                             issueNumber = Convert.ToInt32(ds.Tables[0].Rows[0][0].ToString());
-                            if (!(emailRecipients.Contains(inputArr[15])))
-                            {
-                                emailRecipients += Settings.Default.Semicolon + inputArr[15];
-                            }
                             emailBody += Settings.Default.TestingURL + issueNumber + Settings.Default.NewLine;
                             SendEmailArgs email = new SendEmailArgs(Settings.Default.CreatorEmail, Settings.Default.Subject + issueNumber, Settings.Default.TestingURL + issueNumber);
                             emailList.Add(email);
@@ -227,44 +206,58 @@ namespace PeriodicIssueMaker
         }
 
         //return true if required amount of days from inputted frequency has passed today
-        //private static bool CheckMostRecentJobDate(string jobID, string Frequency)
-        //{
-        //    DataSet ds = SqlHelper.ExecuteDataset(Settings.Default.IssueTrackerConnectionString, CommandType.StoredProcedure, "GetJobMostRecentCompletionTimeStamp",
-        //                        new SqlParameter("@JobId", jobID));
-        //    DateTime dateTime = (DateTime)ds.Tables[0].Rows[0][0];
-        //    int DaysSinceLastJob = (int)(DateTime.Now - dateTime).TotalDays;
-        //    Frequency.ToLower();
-        //    if(dateTime.Year == 1)
-        //    {
-        //        return true;
-        //    }
-        //    switch (Frequency)
-        //    {
-        //        case "weekly":
-        //            if (DaysSinceLastJob < 7)
-        //            {
-        //                return false;
-        //            }
-        //            else break;
-        //        case "monthly":
-        //            if(DaysSinceLastJob < 30)
-        //            {
-        //                return false;
-        //            }
-        //            else break;
-                    
-        //        case "yearly":
-        //            if(DaysSinceLastJob < 365)
-        //            {
-        //                return false;
-        //            }
-        //            else break;
-                    
-        //        default: return true;
+        private static bool CheckMostRecentJobDate(string JobIssueDescription, string Frequency)
+        {
+            DataSet ds = SqlHelper.ExecuteDataset(Settings.Default.IssueTrackerConnectionString, CommandType.StoredProcedure, "GetJobMostRecentCompletionTimeStamp",
+                                new SqlParameter("@JobDescription", JobIssueDescription),
+                                new SqlParameter("@ReportedBy", 1263));
+            if (ds.Tables.Count == 0) 
+            {
+                return true;
+            }
+            else
+            {
+                DateTime dateTime = (DateTime)ds.Tables[0].Rows[0][0];
+                int DaysSinceLastJob = (int)(DateTime.Now - dateTime).TotalDays;
+                Frequency = Frequency.ToLower();
+                if (dateTime.Year == 1)
+                {
+                    return true;
+                }
+                switch (Frequency)
+                {
+                    case "daily":
+                        if (DateTime.Now.Day < dateTime.Day + 1)
+                        {
+                            return false;
+                        }
+                        else break;
+                    case "weekly":
+                        if (DateTime.Now.Day < dateTime.Day + 7)
+                        {
+                            return false;
+                        }
+                        else break;
+                    case "monthly":
+                        if (DateTime.Now.Month < dateTime.Month + 1)
+                        {
+                            return false;
+                        }
+                        else break;
 
-        //    }
-        //    return true;
-        //}
+                    case "yearly":
+                        if (DateTime.Now.Year < dateTime.Year + 1)
+                        {
+                            return false;
+                        }
+                        else break;
+
+                    default: return true;
+
+                }
+                return true;
+            }
+        }
     }
 }
 

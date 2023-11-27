@@ -339,15 +339,21 @@ namespace PeriodicIssueMaker.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Error! Invalid job file")]
         public string InvalidFileMessage {
             get {
                 return ((string)(this["InvalidFileMessage"]));
             }
-            set {
-                this["InvalidFileMessage"] = value;
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1263")]
+        public int BotUserId {
+            get {
+                return ((int)(this["BotUserId"]));
             }
         }
     }

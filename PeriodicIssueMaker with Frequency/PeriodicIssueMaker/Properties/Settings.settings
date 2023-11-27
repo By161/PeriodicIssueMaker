@@ -107,8 +107,11 @@
     <Setting Name="Semicolon" Type="System.String" Scope="Application">
       <Value Profile="(Default)">;</Value>
     </Setting>
-    <Setting Name="InvalidFileMessage" Type="System.String" Scope="User">
+    <Setting Name="InvalidFileMessage" Type="System.String" Scope="Application">
       <Value Profile="(Default)">Error! Invalid job file</Value>
+    </Setting>
+    <Setting Name="BotUserId" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">1263</Value>
     </Setting>
   </Settings>
 </SettingsFile>
