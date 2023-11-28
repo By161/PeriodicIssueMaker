@@ -68,9 +68,9 @@ namespace PeriodicIssueMaker
         }
 
         //helper method to send the email
-        private static async Task SendEmail(string emailAddress, string Subject, string EmailMessage)
+        private static async Task SendEmail(string emailAddress, string subject, string emailMessage)
         {
-            SendEmailArgs sendEmailArgs = new SendEmailArgs(emailAddress, Subject, EmailMessage);
+            SendEmailArgs sendEmailArgs = new SendEmailArgs(emailAddress, subject, emailMessage);
             EmailHelper emailHelper = new EmailHelper();
             await emailHelper.SendEmail(sendEmailArgs);
         }
@@ -206,11 +206,11 @@ namespace PeriodicIssueMaker
         }
 
         //return true if required amount of days from inputted frequency has passed today
-        private static bool CheckMostRecentJobDate(string JobIssueDescription, string Frequency)
+        private static bool CheckMostRecentJobDate(string jobIssueDescription, string frequency)
         {
             DataSet ds = SqlHelper.ExecuteDataset(Settings.Default.IssueTrackerConnectionString, CommandType.StoredProcedure, "GetJobMostRecentCompletionTimeStamp",
-                                new SqlParameter("@JobDescription", JobIssueDescription),
-                                new SqlParameter("@ReportedBy", 1263));
+                                new SqlParameter("@JobDescription", jobIssueDescription),
+                                new SqlParameter("@ReportedBy", Settings.Default.BotUserId));
             if (ds.Tables.Count == 0) 
             {
                 return true;
@@ -219,12 +219,12 @@ namespace PeriodicIssueMaker
             {
                 DateTime dateTime = (DateTime)ds.Tables[0].Rows[0][0];
                 int DaysSinceLastJob = (int)(DateTime.Now - dateTime).TotalDays;
-                Frequency = Frequency.ToLower();
+                frequency = frequency.ToLower();
                 if (dateTime.Year == 1)
                 {
                     return true;
                 }
-                switch (Frequency)
+                switch (frequency)
                 {
                     case "daily":
                         if (DateTime.Now.Day < dateTime.Day + 1)
@@ -252,8 +252,38 @@ namespace PeriodicIssueMaker
                         }
                         else break;
 
-                    default: return true;
+                    case "biweekly":
+                        if (DateTime.Now.Day < dateTime.Day + 14)
+                        {
+                            return false;
+                        }
+                        else break;
 
+                    case "semi-monthly":
+                        if (DateTime.Now.Day < dateTime.Day + (DateTime.DaysInMonth(dateTime.Year, dateTime.Month)/2))
+                        {
+                            return false;
+                        }
+                        else break;
+
+                    case "quarterly":
+                        if (DateTime.Now.Month < dateTime.Month + 4)
+                        {
+                            return false;
+                        }
+                        else break;
+                    case "semi-annually":
+                        if (dateTime.Month == 1 && DateTime.Now.Month == 6 && DateTime.Now.Day == 1)
+                        {
+                            return true;
+                        }
+                        else if (dateTime.Month == 6 && DateTime.Now.Month == 12 && DateTime.Now.Day == 1)
+                        {
+                            return true;
+                        }
+                        else break;
+
+                    default: return true;
                 }
                 return true;
             }
