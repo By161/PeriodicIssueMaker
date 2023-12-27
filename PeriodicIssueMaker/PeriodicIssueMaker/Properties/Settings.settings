@@ -6,7 +6,7 @@
       <Value Profile="(Default)">--</Value>
     </Setting>
     <Setting Name="FilePath" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">C:\temp\IssueMakerBotJobFile.txt</Value>
+      <Value Profile="(Default)">C:\temp\IssueMakerBotJobFileTest.txt</Value>
     </Setting>
     <Setting Name="TempPath" Type="System.String" Scope="Application">
       <Value Profile="(Default)">C:\temp</Value>
@@ -83,10 +83,10 @@
     <Setting Name="ErrorSubject" Type="System.String" Scope="Application">
       <Value Profile="(Default)">The Issue Tracker Periodic Insert Bot failed to load its config file</Value>
     </Setting>
-    <Setting Name="ProductionConnection" Type="System.String" Scope="Application">
+    <Setting Name="ProductionURL" Type="System.String" Scope="Application">
       <Value Profile="(Default)">http://issuetracker/edit_bug.aspx?id=</Value>
     </Setting>
-    <Setting Name="TestingConnection" Type="System.String" Scope="Application">
+    <Setting Name="TestingURL" Type="System.String" Scope="Application">
       <Value Profile="(Default)">http://stage9.winstonfinancial.com:1234/edit_bug.aspx?id=</Value>
     </Setting>
     <Setting Name="StringSplitArg" Type="System.Char" Scope="Application">
@@ -107,8 +107,14 @@
     <Setting Name="Semicolon" Type="System.String" Scope="Application">
       <Value Profile="(Default)">;</Value>
     </Setting>
-    <Setting Name="InvalidFileMessage" Type="System.String" Scope="User">
-      <Value Profile="(Default)">Error! Invalid job file</Value>
+    <Setting Name="InvalidFileMessage" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">Error! Invalid job file. No issues were created.</Value>
+    </Setting>
+    <Setting Name="BotUserId" Type="System.Int32" Scope="Application">
+      <Value Profile="(Default)">1263</Value>
+    </Setting>
+    <Setting Name="NoIssuesWereCreated" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">No issues were created</Value>
     </Setting>
   </Settings>
 </SettingsFile>

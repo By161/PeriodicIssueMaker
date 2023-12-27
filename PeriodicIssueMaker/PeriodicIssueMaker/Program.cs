@@ -9,6 +9,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Microsoft.ApplicationBlocks.Data;
 using PeriodicIssueMaker.Properties;
@@ -19,8 +20,10 @@ namespace PeriodicIssueMaker
     {
         static int issueNumber = 0;
         static string emailBody = "";
+        static string errorEmailBody = "";
         static Dictionary<string, int> DaysOfWeek = new Dictionary<string, int>() 
         { { "monday", 1 }, { "tuesday", 2 }, { "wednesday", 3 }, { "thursday", 4 }, { "friday", 5 }, { "saturday", 6 }, { "sunday", 0 }, };
+        static string[] frequencyStringArr = { "daily", "weekly", "monthly","yearly", "annually", "biweekly", "semi-monthly", "quarterly", "semi-annually" }; 
         private static async Task Main(string[] args)
         {
             //program starts
@@ -34,7 +37,10 @@ namespace PeriodicIssueMaker
                     try
                     {
                         ProcessIssueJobFile();
-                        await SendEmail(Settings.Default.CreatorEmail, Settings.Default.Subject, emailBody);
+                        if (emailBody.Equals(""))
+                        {
+                            await SendEmail(Settings.Default.CreatorEmail, Settings.Default.Subject, Settings.Default.NoIssuesWereCreated);
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -44,7 +50,7 @@ namespace PeriodicIssueMaker
                 //file is invalid
                 else
                 {
-                    await SendEmail(Settings.Default.CreatorEmail, Settings.Default.ErrorSubject, LogMessage(Settings.Default.InvalidFileMessage, Settings.Default.ProgramStartAndEnd));
+                    await SendEmail(Settings.Default.CreatorEmail, Settings.Default.ErrorSubject, LogMessage(Settings.Default.InvalidFileMessage + "<br />" + errorEmailBody, Settings.Default.ProgramStartAndEnd));
                 }
             }
         }
@@ -54,7 +60,7 @@ namespace PeriodicIssueMaker
         {
             DataSet ds = SqlHelper.ExecuteDataset(Settings.Default.IssueTrackerConnectionString, CommandType.StoredProcedure, "InsertBugAndComment",
                                 new SqlParameter("@bg_short_desc", input[4]),
-                                new SqlParameter("@bg_reported_user", input[5]),
+                                new SqlParameter("@bg_reported_user", Settings.Default.BotUserId),
                                 new SqlParameter("@bg_priority", input[6]),
                                 new SqlParameter("bg_category", input[7]),
                                 new SqlParameter("@bg_project", input[8]),
@@ -68,9 +74,9 @@ namespace PeriodicIssueMaker
         }
 
         //helper method to send the email
-        private static async Task SendEmail(string emailAddress, string Subject, string EmailMessage)
+        private static async Task SendEmail(string emailAddress, string subject, string emailMessage)
         {
-            SendEmailArgs sendEmailArgs = new SendEmailArgs(emailAddress, Subject, EmailMessage);
+            SendEmailArgs sendEmailArgs = new SendEmailArgs(emailAddress, subject, emailMessage);
             EmailHelper emailHelper = new EmailHelper();
             await emailHelper.SendEmail(sendEmailArgs);
         }
@@ -113,6 +119,7 @@ namespace PeriodicIssueMaker
         //helper method to check if the job file is valid
         private static bool FileValid(string file)
         {
+            bool isValid = true;
             var linesRead = File.ReadLines(Settings.Default.FilePath);
             foreach (var lineRead in linesRead)
             {
@@ -120,46 +127,45 @@ namespace PeriodicIssueMaker
                 //line is whitespace
                 if (string.IsNullOrWhiteSpace(lineRead))
                 {
+                    Console.WriteLine("Line is whitespace: " + lineRead);
                     continue;
                 }
                 //line is a comment
                 else if (lineRead.StartsWith(Settings.Default.CommentString)) 
                 {
+                    Console.WriteLine("Line is a comment: " + lineRead);
                     continue;
                 }
                 //line is proper command
                 string[] inputArr = lineRead.Split(Settings.Default.StringSplitArg);
-                if ((inputArr.Length != 16) || (!(IsInt(inputArr[0]) && IsInt(inputArr[3]) && IsInt(inputArr[5]) &&
+                if (!frequencyStringArr.Any(inputArr[2].ToLower().Contains)){
+                    Console.WriteLine("Command has improper frequency input: " + lineRead);
+                    errorEmailBody += "<br />Command has improper frequency input: " + lineRead;
+                    isValid = false;
+                    continue;
+                }
+                if ((inputArr.Length != 15) || (!(IsInt(inputArr[0]) && IsInt(inputArr[3]) && IsInt(inputArr[5]) &&
                     IsInt(inputArr[6]) && IsInt(inputArr[7]) && IsInt(inputArr[8])
-                    && IsInt(inputArr[9]) && IsInt(inputArr[10]) && IsInt(inputArr[11])
-                    && IsValidEmail(inputArr[15]))))
+                    && IsInt(inputArr[9]) && IsInt(inputArr[10]) && IsInt(inputArr[11]))))
                 {
-                    return false;
+                    Console.WriteLine("Command does not have correct int parameter(s): " + lineRead);
+                    errorEmailBody += "<br />Command does not have correct int parameter(s): " + lineRead;
+                    continue;
+                }
+                else
+                {
+                    Console.WriteLine("Proper command: " + lineRead);
+                    errorEmailBody += "<br />Proper command: " + lineRead;
                 }
             }
-            return true;
+            return isValid;
         }
         //helper method to check if input is a number
         private static bool IsInt(string input)
         {
             return int.TryParse(input, out int result);
         }
-        //helper method to check if an inputted string is a valid email address
-        private static bool IsValidEmail(string email)
-        {
-            if (email.Contains(Settings.Default.StringSplitArg))
-            {
-                string[] emails = email.Split(Settings.Default.StringSplitArg);
-                for (int i = 0; i < emails.Length; i++)
-                {
-                    if (!emails[i].Contains("@") || emails[i].IndexOf("@") < 0 || emails[i].IndexOf("@") >= emails[i].Length)
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
+
         //create and insert issue
         private static async void ProcessIssueJobFile()
         {
@@ -173,10 +179,9 @@ namespace PeriodicIssueMaker
                 if (!string.IsNullOrWhiteSpace(lineRead) && !(lineRead.StartsWith(Settings.Default.CommentString)))
                 {
                     string[] inputArr = lineRead.Split(Settings.Default.StringSplitArg);
-                    string dueDayInput = inputArr[12];
-                    string dueDay = dueDayInput.Substring(inputArr[12].IndexOf(" ") + 1).ToLower();
-                    string prefix = dueDayInput.Substring(0, dueDayInput.IndexOf(" "));
-                    string emailRecipients = Settings.Default.CreatorEmail;
+                    string dueDay = inputArr[12].Substring(inputArr[12].IndexOf(" ") + 1).ToLower();
+                    string prefix = inputArr[12].Substring(0, inputArr[12].IndexOf(" "));
+                    
                     DateTime dueDate;
                     if (prefix == Settings.Default.FirstPrefix)
                     {
@@ -189,24 +194,23 @@ namespace PeriodicIssueMaker
                     //bot starts to run
                     try
                     {
-                        DataSet ds = CallSproc(inputArr, dueDate);
-                        issueNumber = Convert.ToInt32(ds.Tables[0].Rows[0][0].ToString());
-                        if (!(emailRecipients.Contains(inputArr[15])))
+                        if (CheckMostRecentJobDate(inputArr[4], inputArr[2]))
                         {
-                            emailRecipients += Settings.Default.Semicolon + inputArr[15];
+                            DataSet ds = CallSproc(inputArr, dueDate);
+                            issueNumber = Convert.ToInt32(ds.Tables[0].Rows[0][0].ToString());
+                            emailBody += Settings.Default.TestingURL + issueNumber + Settings.Default.NewLine;
+                            SendEmailArgs email = new SendEmailArgs(Settings.Default.CreatorEmail, Settings.Default.Subject + issueNumber, Settings.Default.TestingURL + issueNumber);
+                            emailList.Add(email);
                         }
-                        emailBody += Settings.Default.TestingConnection + issueNumber + Settings.Default.NewLine;
-                        SendEmailArgs email = new SendEmailArgs(emailRecipients, Settings.Default.Subject + issueNumber, Settings.Default.TestingConnection + issueNumber);
-                        emailList.Add(email);
                     }
                     //bot failed to insert issue
                     catch (SqlException)
                     {
-                        await SendEmail(inputArr[15], Settings.Default.ErrorSubject, lineRead + Settings.Default.NewLine + inputArr[4]);
+                        await SendEmail(Settings.Default.CreatorEmail, Settings.Default.ErrorSubject, lineRead + Settings.Default.NewLine + inputArr[4]);
                     }
                     catch (Exception ex)
                     {
-                        await SendEmail(inputArr[15], Settings.Default.ErrorSubject, ex + Settings.Default.NewLine + lineRead + Settings.Default.NewLine + inputArr[4]);
+                        await SendEmail(Settings.Default.CreatorEmail, Settings.Default.ErrorSubject, ex + Settings.Default.NewLine + lineRead + Settings.Default.NewLine + inputArr[4]);
                     }
                 }
             }
@@ -221,6 +225,91 @@ namespace PeriodicIssueMaker
                 listOfTasks.Add(SendEmail(string.Join(";", email.ToAddresses), email.Subject, email.Body));
             }
             await Task.WhenAll(listOfTasks);
+        }
+
+        //return true if required amount of days from inputted frequency has passed today
+        private static bool CheckMostRecentJobDate(string jobIssueDescription, string frequency)
+        {
+            DataSet ds = SqlHelper.ExecuteDataset(Settings.Default.IssueTrackerConnectionString, CommandType.StoredProcedure, "GetJobMostRecentCompletionTimeStamp",
+                                new SqlParameter("@JobDescription", jobIssueDescription),
+                                new SqlParameter("@ReportedBy", Settings.Default.BotUserId));
+            if (ds.Tables.Count == 0) 
+            {
+                return true;
+            }
+            else
+            {
+                DateTime dateTime = (DateTime)ds.Tables[0].Rows[0][0];
+                int DaysSinceLastJob = (int)(DateTime.Now - dateTime).TotalDays;
+                frequency = frequency.ToLower();
+                if (dateTime.Year == 1)
+                {
+                    return true;
+                }
+                switch (frequency)
+                {
+                    case "daily":
+                        if (DateTime.Now.Day < dateTime.Day + 1)
+                        {
+                            return false;
+                        }
+                        else break;
+                    case "weekly":
+                        if (DateTime.Now.Day < dateTime.Day + 7)
+                        {
+                            return false;
+                        }
+                        else break;
+                    case "monthly":
+                        if (DateTime.Now.Month < dateTime.Month + 1)
+                        {
+                            return false;
+                        }
+                        else break;
+
+                    case "yearly":
+                    case "annually":
+                        if (DateTime.Now.Year < dateTime.Year + 1)
+                        {
+                            return false;
+                        }
+                        else break;
+
+                    case "biweekly":
+                        if (DateTime.Now.Day < dateTime.Day + 14)
+                        {
+                            return false;
+                        }
+                        else break;
+
+                    case "semi-monthly":
+                        if (DateTime.Now.Day < dateTime.Day + (DateTime.DaysInMonth(dateTime.Year, dateTime.Month)/2))
+                        {
+                            return false;
+                        }
+                        else break;
+
+                    case "quarterly":
+                        if (DateTime.Now.Month < dateTime.Month + 4)
+                        {
+                            return false;
+                        }
+                        else break;
+                    case "semi-annually":
+                        if (dateTime.Month == 1 && DateTime.Now.Month == 6 && DateTime.Now.Day == 1)
+                        {
+                            return true;
+                        }
+                        else if (dateTime.Month == 6 && DateTime.Now.Month == 12 && DateTime.Now.Day == 1)
+                        {
+                            return true;
+                        }
+                        else break;
+
+                    default: return true;
+                }
+                return true;
+            }
         }
     }
 }

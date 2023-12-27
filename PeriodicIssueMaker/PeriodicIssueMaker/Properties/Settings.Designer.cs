@@ -34,7 +34,7 @@ namespace PeriodicIssueMaker.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("C:\\temp\\IssueMakerBotJobFile.txt")]
+        [global::System.Configuration.DefaultSettingValueAttribute("C:\\temp\\IssueMakerBotJobFileTest.txt")]
         public string FilePath {
             get {
                 return ((string)(this["FilePath"]));
@@ -270,18 +270,18 @@ namespace PeriodicIssueMaker.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("http://issuetracker/edit_bug.aspx?id=")]
-        public string ProductionConnection {
+        public string ProductionURL {
             get {
-                return ((string)(this["ProductionConnection"]));
+                return ((string)(this["ProductionURL"]));
             }
         }
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("http://stage9.winstonfinancial.com:1234/edit_bug.aspx?id=")]
-        public string TestingConnection {
+        public string TestingURL {
             get {
-                return ((string)(this["TestingConnection"]));
+                return ((string)(this["TestingURL"]));
             }
         }
         
@@ -339,15 +339,30 @@ namespace PeriodicIssueMaker.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Error! Invalid job file")]
+        [global::System.Configuration.DefaultSettingValueAttribute("Error! Invalid job file. No issues were created.")]
         public string InvalidFileMessage {
             get {
                 return ((string)(this["InvalidFileMessage"]));
             }
-            set {
-                this["InvalidFileMessage"] = value;
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1263")]
+        public int BotUserId {
+            get {
+                return ((int)(this["BotUserId"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("No issues were created")]
+        public string NoIssuesWereCreated {
+            get {
+                return ((string)(this["NoIssuesWereCreated"]));
             }
         }
     }
